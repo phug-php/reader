@@ -1,10 +1,10 @@
 {
-    "name": "talesoft/tale-jade",
+    "name": "phug/lexer",
     "type": "library",
-    "keywords": ["template", "dialect", "html", "views", "render", "presentation", "jade", "html", "php", "phtml"],
-    "description": "A clean, lightweight and easy-to-use templating engine for PHP based on Jade/Pug",
+    "keywords": ["phug", "lexer", "template", "dialect", "html", "views", "render", "presentation", "jade", "pug", "html", "php", "phtml"],
+    "description": "",
     "license": "MIT",
-    "homepage": "http://jade.talesoft.codes",
+    "homepage": "http://phug-lang.com",
     "authors": [
         {
             "name": "Torben Koehn",
@@ -12,32 +12,22 @@
         }
     ],
     "support": {
-        "email": "torben@talesoft.codes",
-        "issues": "https://github.com/talesoft/tale-jade/issues",
-        "source": "https://github.com/talesoft/tale-jade",
-        "docs": "http://jade.talesoft.codes/docs"
+        "email": "support@phug-lang.com",
+        "issues": "https://github.com/phug-php/lexer/issues",
+        "source": "https://github.com/phug-php/lexer",
+        "docs": "http://phug-lang.com/docs"
     },
     "minimum-stability": "stable",
     "require": {
         "php": ">=5.5.0",
-        "talesoft/tale-config": "0.2",
-        "symfony/polyfill-mbstring": "*"
+        "symfony/polyfill-mbstring": "*",
+        "psr/http-message": "^1.0"
     },
     "autoload": {
         "psr-4": {
-            "Tale\\Jade\\": ""
-        },
-        "files": [
-            "functions.php",
-            "Compiler/functions.php"
-        ]
+            "": "./src"
+        }
     },
-    "bin": ["tale-jade"],
-    "suggest": {
-        "erusev/parsedown": "Enables Markdown filtering",
-        "coffeescript/coffeescript": "Enables CoffeeScript filtering",
-        "leafo/lessphp": "Enables LESS filtering",
-        "neemzy/stylus": "Enables Stylus filtering",
-        "leafo/scssphp": "Enables SASS filtering"
-    }
+    "bin": [],
+    "suggest": {}
 }

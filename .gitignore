@@ -2,7 +2,6 @@
 /.idea
 /vendor
 /docs
-/Test/cache
 
 .DS_Store
 Thumbs.db

@@ -2,7 +2,7 @@
 language: php
 
 git:
-  depth: 5
+    depth: 5
 
 php:
     - 5.5

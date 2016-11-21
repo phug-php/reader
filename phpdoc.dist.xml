@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phpdoc>
-    <title><![CDATA[Tale Jade for PHP]]></title>
+    <title><![CDATA[Phug - Lexer]]></title>
     <parser>
         <target>docs/structure</target>
         <extensions>
@@ -15,8 +15,7 @@
     </transformations>
     <files>
         <directory>.</directory>
-        <ignore>tasks.php</ignore>
-        <ignore>Test/*</ignore>
+        <ignore>tests/*</ignore>
         <ignore>vendor/*</ignore>
     </files>
 </phpdoc>
