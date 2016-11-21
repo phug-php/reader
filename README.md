@@ -17,7 +17,7 @@ This class is specifically made for lexical analysis and expression-validation.
 Install via Composer
 
 ```bash
-composer require talesoft/tale-reader
+composer require phug-php/reader
 ```
 
 # Usage
