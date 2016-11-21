@@ -1,7 +1,7 @@
 {
-    "name": "phug/lexer",
+    "name": "phug/reader",
     "type": "library",
-    "keywords": ["phug", "lexer", "template", "dialect", "html", "views", "render", "presentation", "jade", "pug", "html", "php", "phtml"],
+    "keywords": ["phug", "reader", "template", "dialect", "html", "views", "render", "presentation", "jade", "pug", "html", "php", "phtml"],
     "description": "",
     "license": "MIT",
     "homepage": "http://phug-lang.com",
