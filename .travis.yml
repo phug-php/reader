@@ -16,3 +16,6 @@ before_script:
 install:
     - composer self-update
     - composer install --no-dev
+
+notifications:
+    slack: phug:nzXFnxhU14RWK2EQSDL0u08z
