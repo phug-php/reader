@@ -13,8 +13,8 @@
     ],
     "support": {
         "email": "support@phug-lang.com",
-        "issues": "https://github.com/phug-php/lexer/issues",
-        "source": "https://github.com/phug-php/lexer",
+        "issues": "https://github.com/phug-php/reader/issues",
+        "source": "https://github.com/phug-php/reader",
         "docs": "http://phug-lang.com/docs"
     },
     "minimum-stability": "stable",
