@@ -58,20 +58,17 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $blockLevel = 0;
         $expressionLevel = 0;
         while ($reader->hasLength()) {
-
             //Skip spaces of any kind.
             $reader->readSpaces();
 
             //Scan for identifiers
             if ($identifier = $reader->readIdentifier()) {
-
                 $tokens[] = ['type' => 'identifier', 'name' => $identifier];
                 continue;
             }
 
             //Scan for Assignments
             if ($reader->peekChar('=')) {
-
                 $reader->consume();
                 $tokens[] = ['type' => 'assignment'];
                 continue;
@@ -79,14 +76,12 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
             //Scan for strings
             if (($string = $reader->readString()) !== null) {
-
                 $tokens[] = ['type' => 'string', 'value' => $string];
                 continue;
             }
 
             //Scan block start
             if ($reader->peekChar('{')) {
-
                 $reader->consume();
                 $blockLevel++;
                 $tokens[] = ['type' => 'blockStart'];
@@ -95,7 +90,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
             //Scan block end
             if ($reader->peekChar('}')) {
-
                 $reader->consume();
                 $blockLevel--;
                 $tokens[] = ['type' => 'blockEnd'];
@@ -104,7 +98,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
             //Scan parenthesis start
             if ($reader->peekChar('(')) {
-
                 $reader->consume();
                 $expressionLevel++;
                 $tokens[] = ['type' => 'listStart'];
@@ -113,7 +106,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
             //Scan parenthesis end
             if ($reader->peekChar(')')) {
-
                 $reader->consume();
                 $expressionLevel--;
                 $tokens[] = ['type' => 'listEnd'];
@@ -122,7 +114,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
             //Scan comma
             if ($reader->peekChar(',')) {
-
                 $reader->consume();
                 $tokens[] = ['type' => 'next'];
                 continue;
@@ -166,18 +157,16 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $attributes = [];
         //Enter an attribute block if available
         if ($reader->peekChar('(')) {
-
             $reader->consume();
             while ($reader->hasLength()) {
-
-
                 //Ignore spaces
                 $reader->readSpaces();
 
 
                 //Scan the attribute name
-                if (!($name = $reader->readIdentifier()))
+                if (!($name = $reader->readIdentifier())) {
                     throw new \Exception("Attributes need a name!");
+                }
 
 
                 //Ignore spaces
@@ -185,8 +174,9 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
 
                 //Make sure there's a =-character
-                if (!$reader->peekChar('='))
+                if (!$reader->peekChar('=')) {
                     throw new \Exception("Failed to read: Expected attribute value");
+                }
 
                 $reader->consume();
 
@@ -206,8 +196,9 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
 
                 //If we don't encounter a , to go on, we break the loop
-                if (!$reader->peekChar(','))
+                if (!$reader->peekChar(',')) {
                     break;
+                }
 
 
                 //Else we consume the , and continue our attribute parsing
@@ -215,8 +206,9 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
             }
 
             //Now make sure we actually closed our attribute block correctly.
-            if (!$reader->peekChar(')'))
+            if (!$reader->peekChar(')')) {
                 throw new \Exception("Failed to read: Expected closing bracket");
+            }
         }
 
 

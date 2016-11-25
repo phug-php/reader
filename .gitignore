@@ -2,8 +2,3 @@
 /.idea
 /vendor
 /docs
-
-.DS_Store
-Thumbs.db
-phpdoc.xml
-*.phtml

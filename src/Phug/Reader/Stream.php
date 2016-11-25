@@ -10,7 +10,7 @@ use RuntimeException;
 /**
  * A basic stream wrapper to unify reading methods.
  *
- * @package Tale
+ * Is is not actively used yet, but planned to be integrated later on.
  */
 class Stream implements StreamInterface
 {
@@ -47,16 +47,19 @@ class Stream implements StreamInterface
         $this->context = $context;
         $mode = $mode ?: self::DEFAULT_MODE;
 
-        if (is_object($context) && method_exists($context, '__toString'))
+        if (is_object($context) && method_exists($context, '__toString')) {
             $this->context = (string)$this->context;
+        }
 
-        if (is_string($this->context))
+        if (is_string($this->context)) {
             $this->context = fopen($this->context, $mode);
+        }
 
-        if (!is_resource($this->context))
+        if (!is_resource($this->context)) {
             throw new InvalidArgumentException(
                 'Argument 1 needs to be resource or path/URI'
             );
+        }
 
         $this->metadata = stream_get_meta_data($this->context);
     }
@@ -77,7 +80,6 @@ class Stream implements StreamInterface
     {
 
         if (!$this->context) {
-
             return;
         }
 
@@ -104,8 +106,9 @@ class Stream implements StreamInterface
     public function getSize()
     {
 
-        if ($this->context === null)
+        if ($this->context === null) {
             return null;
+        }
 
         $stat = fstat($this->context);
 
@@ -128,8 +131,9 @@ class Stream implements StreamInterface
     public function eof()
     {
 
-        if (!$this->context)
+        if (!$this->context) {
             return true;
+        }
 
         return feof($this->context);
     }
@@ -140,8 +144,9 @@ class Stream implements StreamInterface
     public function isSeekable()
     {
 
-        if (!$this->context)
+        if (!$this->context) {
             return false;
+        }
 
         return $this->getMetadata('seekable') ? true : false;
     }
@@ -152,10 +157,11 @@ class Stream implements StreamInterface
     public function seek($offset, $whence = \SEEK_SET)
     {
 
-        if (!$this->isSeekable())
+        if (!$this->isSeekable()) {
             throw new RuntimeException(
                 'Stream is not seekable'
             );
+        }
 
         fseek($this->context, $offset, $whence);
 
@@ -177,8 +183,9 @@ class Stream implements StreamInterface
     public function isWritable()
     {
 
-        if (!$this->context)
+        if (!$this->context) {
             return false;
+        }
 
         $mode = $this->getMetadata('mode');
         return (strstr($mode, 'w') || strstr($mode, 'x') || strstr($mode, 'c') || strstr($mode, '+'));
@@ -190,10 +197,11 @@ class Stream implements StreamInterface
     public function write($string)
     {
 
-        if (!$this->isWritable())
+        if (!$this->isWritable()) {
             throw new RuntimeException(
                 'Stream is not writable'
             );
+        }
 
         return fwrite($this->context, $string);
     }
@@ -204,8 +212,9 @@ class Stream implements StreamInterface
     public function isReadable()
     {
 
-        if (!$this->context)
+        if (!$this->context) {
             return false;
+        }
 
         $mode = $this->getMetadata('mode');
         return (strstr($mode, 'r') || strstr($mode, '+'));
@@ -217,10 +226,11 @@ class Stream implements StreamInterface
     public function read($length)
     {
 
-        if (!$this->isReadable())
+        if (!$this->isReadable()) {
             throw new RuntimeException(
                 'Stream is not readable'
             );
+        }
 
         return fread($this->context, $length);
     }
@@ -231,10 +241,11 @@ class Stream implements StreamInterface
     public function getContents()
     {
 
-        if (!$this->isReadable())
+        if (!$this->isReadable()) {
             throw new RuntimeException(
                 'Stream is not readable'
             );
+        }
 
         return stream_get_contents($this->context);
     }
@@ -245,11 +256,13 @@ class Stream implements StreamInterface
     public function getMetadata($key = null)
     {
 
-        if ($key === null)
+        if ($key === null) {
             return $this->metadata;
+        }
 
-        if (!isset($this->metadata[$key]))
+        if (!isset($this->metadata[$key])) {
             return null;
+        }
 
         return $this->metadata[$key];
     }
@@ -260,11 +273,13 @@ class Stream implements StreamInterface
     public function __toString()
     {
 
-        if (!$this->isReadable())
+        if (!$this->isReadable()) {
             return '';
+        }
 
-        if ($this->isSeekable())
+        if ($this->isSeekable()) {
             $this->rewind();
+        }
 
         return $this->getContents();
     }
@@ -272,5 +287,7 @@ class Stream implements StreamInterface
     /**
      *
      */
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 }

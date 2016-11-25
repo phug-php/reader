@@ -4,6 +4,9 @@ namespace Phug\Reader\Stream;
 
 use Phug\Reader\Stream;
 
+/**
+ * A stream wrapper around `php://memory` supporting initial content.
+ */
 class MemoryStream extends Stream
 {
 
@@ -12,7 +15,6 @@ class MemoryStream extends Stream
         parent::__construct('php://memory', $mode);
 
         if ($content) {
-
             $this->write($content);
             $this->rewind();
         }

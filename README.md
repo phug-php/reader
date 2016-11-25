@@ -1,7 +1,9 @@
 
-# Phug Reader
+Phug Reader
+===========
 
-# What is Phug Reader?
+What is Phug Reader?
+--------------------
 
 The Reader-class is a small utility that can parse and scan strings for specific entities.
 
@@ -12,17 +14,19 @@ When the string is empty, the parsing is done (usually).
 
 This class is specifically made for lexical analysis and expression-validation.
 
-# Installation
+Installation
+------------
 
 Install via Composer
 
 ```bash
-composer require phug-php/reader
+composer require phug/reader
 ```
 
-# Usage
+Usage
+-----
 
-## Basics
+### Basics
 
 The process of reading with the `Phug\Reader` involves **peeking** and **consuming**.
 You **peek**, check, if it's what you wanted and if it is, you **consume**.
@@ -100,7 +104,7 @@ and it was validated on that way.
 This was just a small example, Phug Reader is made for loop-parsing.
 
 
-## Build a small tokenizer
+### Build a small tokenizer
 
 ```php
 use Phug\Reader;
@@ -216,7 +220,7 @@ var_dump($tokens);
 ```
 
 
-## Keep expressions intact
+### Keep expressions intact
 
 Sometimes you want to keep expressions intact, e.g. when you allow inclusion of third-party-code that needs to be parsed separately.
 

@@ -7,31 +7,125 @@ use Phug\Reader\PregUtil;
 
 /**
  * A string reading utility that searches strings byte by byte.
- *
  */
 class Reader
 {
-    use LineOffsetTrait;
 
+    private static $pregErrors = [
+        PREG_NO_ERROR              => 'No error occured',
+        PREG_INTERNAL_ERROR        => 'An internal error occured',
+        PREG_BACKTRACK_LIMIT_ERROR => 'The backtrack limit was exhausted (Increase pcre.backtrack_limit in php.ini)',
+        PREG_RECURSION_LIMIT_ERROR => 'Recursion limit was exhausted (Increase pcre.recursion_limit in php.ini)',
+        PREG_BAD_UTF8_ERROR        => 'Bad UTF8 error!',
+        PREG_BAD_UTF8_OFFSET_ERROR => 'Bad UTF8 offset error'
+    ];
+
+    /**
+     * The default encoding to use while reading.
+     *
+     * @var string
+     */
     protected $defaultEncoding = 'UTF-8';
+
+    /**
+     * Bad characters that are automatically removed when using `normalize()`.
+     *
+     * @var string
+     */
     protected $badCharacters = "\0\r\v";
+
+    /**
+     * The characters that are seen as indentation.
+     *
+     * @var string
+     */
     protected $indentCharacters = "\t ";
+
+    /**
+     * Characters that are seen as quote characters.
+     *
+     * @var string
+     */
     protected $quoteCharacters = "\"'`";
+
+    /**
+     * An array of brackets that are seen as valid brackets for bracket counting.
+     *
+     * Key is always the open-bracket, value is the close-bracket.
+     *
+     * @var array
+     */
     protected $expressionBrackets = [
         '(' => ')',
         '[' => ']',
         '{' => '}'
     ];
 
+    /**
+     * The current input string that is read.
+     *
+     * @var string
+     */
     private $input;
+
+    /**
+     * The encoding currently used in this reading process.
+     *
+     * @var string
+     */
     private $encoding;
 
+    /**
+     * The position in the input we are currently at.
+     *
+     * @var int
+     */
     private $position;
 
+
+    /**
+     * Contains the line the reader is currently on.
+     *
+     * @var int
+     */
+    private $line = 0;
+
+    /**
+     * Contains the offset of the line the reader is currently on.
+     *
+     * @var int
+     */
+    private $offset = 0;
+
+    /**
+     * Contains the last result of `peek()`, if any.
+     *
+     * @var string|null
+     */
     private $lastPeekResult;
+
+    /**
+     * Contains the last result-array of `match()`, if any.
+     *
+     * This is a normal array created by `preg_match`-matching.
+     *
+     * @var array|null
+     */
     private $lastMatchResult;
+
+    /**
+     * The length that is to be consumed by `consume()`, if any.
+     *
+     * @var int|null
+     */
     private $nextConsumeLength;
 
+    /**
+     * Creates a new reader instance.
+     *
+     * @param string $input the input string to read from.
+     * @param string|null $encoding the encoding used in the reading process.
+     */
     public function __construct($input, $encoding = null)
     {
 
@@ -115,6 +209,28 @@ class Reader
     }
 
     /**
+     * Returns the line the reader is currently on.
+     *
+     * @return int
+     */
+    public function getLine()
+    {
+
+        return $this->line;
+    }
+
+    /**
+     * Returns the offset of the line the reader is currently on.
+     *
+     * @return int
+     */
+    public function getOffset()
+    {
+
+        return $this->offset;
+    }
+
+    /**
      * Removes useless characters from the whole input string.
      *
      * @return $this
@@ -161,20 +277,23 @@ class Reader
     public function peek($length = null, $start = null)
     {
 
-        if (!$this->hasLength())
+        if (!$this->hasLength()) {
             return null;
+        }
 
         $length = $length !== null ? $length : 1;
         $start = $start !== null ? $start : 0;
 
-        if (!is_int($length) || $length < 1)
+        if (!is_int($length) || $length < 1) {
             throw new \InvalidArgumentException(
                 'Failed to peek: Length should be a number above 1'
             );
+        }
 
         //Cap read length to the size of this document
-        if ($length > ($maxLength = $this->getLength()))
+        if ($length > ($maxLength = $this->getLength())) {
             $length = $maxLength;
+        }
 
         $this->lastPeekResult = mb_substr($this->input, $start, $length, $this->encoding);
         $this->nextConsumeLength = $start + mb_strlen($this->lastPeekResult, $this->encoding);
@@ -208,13 +327,15 @@ class Reader
             $this->lastMatchResult
         );
 
-        if ($result === false)
+        if ($result === false) {
             $this->throwException(
-                "Failed to match pattern: ".PregUtil::getLastPregErrorText()
+                'Failed to match pattern: '.$this->getLastPregErrorText()
             );
+        }
 
-        if ($result === 0)
+        if ($result === 0) {
             return false;
+        }
 
         $this->nextConsumeLength = mb_strlen(rtrim($this->lastMatchResult[0], $ignoredSuffixes));
         return true;
@@ -229,10 +350,11 @@ class Reader
     public function getMatch($key)
     {
 
-        if (!$this->lastMatchResult)
+        if (!$this->lastMatchResult) {
             $this->throwException(
                 "Failed to get match $key: No match result found. Use match first"
             );
+        }
 
         return isset($this->lastMatchResult[$key])
             ? $this->lastMatchResult[$key]
@@ -247,15 +369,18 @@ class Reader
     public function getMatchData()
     {
 
-        if (!$this->lastMatchResult)
+        if (!$this->lastMatchResult) {
             $this->throwException(
                 "Failed to get match data: No match result found. Use match first"
             );
+        }
 
         $data = [];
-        foreach ($this->lastMatchResult as $key => $value)
-            if (is_string($key))
+        foreach ($this->lastMatchResult as $key => $value) {
+            if (is_string($key)) {
                 $data[$key] = $value;
+            }
+        }
 
         return $data;
     }
@@ -274,12 +399,14 @@ class Reader
 
         $length = $length ?: $this->nextConsumeLength;
 
-        if ($length === null)
+        if ($length === null) {
             $this->throwException(
                 'Failed to consume: No length given. Peek or match first.'
             );
+        }
 
-        $consumedPart = mb_substr($this->input, 0, $length, $this->encoding);;
+        $consumedPart = mb_substr($this->input, 0, $length, $this->encoding);
+        ;
         $this->input = mb_substr($this->input, $length, mb_strlen($this->input) - $length, $this->encoding);
         $this->position += $length;
         $this->offset += $length;
@@ -289,13 +416,11 @@ class Reader
         $this->line += $newLines;
 
         if ($newLines) {
-
             //if we only have one new-line character, the new offset is 0
             //Else the offset is the length of the last line read - 1
-            if (mb_strlen($consumedPart, $this->encoding) === 1)
+            if (mb_strlen($consumedPart, $this->encoding) === 1) {
                 $this->offset = 0;
-            else {
-
+            } else {
                 $parts = explode("\n", $consumedPart);
                 $this->offset = mb_strlen($parts[count($parts) - 1], $this->encoding) - 1;
             }
@@ -320,20 +445,24 @@ class Reader
     public function readWhile($callback, $peekLength = null)
     {
 
-        if (!is_callable($callback))
+        if (!is_callable($callback)) {
             throw new \InvalidArgumentException(
                 "Argument 1 passed to Reader->readWhile needs to be callback"
             );
+        }
 
-        if (!$this->hasLength())
+        if (!$this->hasLength()) {
             return null;
+        }
 
-        if ($peekLength === null)
+        if ($peekLength === null) {
             $peekLength = 1;
+        }
 
         $result = '';
-        while ($this->hasLength() && call_user_func($callback, $this->peek($peekLength)))
+        while ($this->hasLength() && call_user_func($callback, $this->peek($peekLength))) {
             $result .= $this->consume();
+        }
 
         return $result;
     }
@@ -348,7 +477,7 @@ class Reader
     public function readUntil($callback, $peekLength = null)
     {
 
-        return $this->readWhile(function($char) use ($callback) {
+        return $this->readWhile(function ($char) use ($callback) {
 
             return !call_user_func($callback, $char);
         }, $peekLength);
@@ -515,8 +644,9 @@ class Reader
     public function readIndentation()
     {
 
-        if (!$this->peekIndentation())
+        if (!$this->peekIndentation()) {
             return null;
+        }
 
         return $this->readWhile([$this, 'peekIndentation']);
     }
@@ -540,8 +670,9 @@ class Reader
     public function readSpaces()
     {
 
-        if (!$this->peekSpace())
+        if (!$this->peekSpace()) {
             return null;
+        }
 
         return $this->readWhile('ctype_space');
     }
@@ -554,8 +685,9 @@ class Reader
     public function readDigits()
     {
 
-        if (!$this->peekDigit())
+        if (!$this->peekDigit()) {
             return null;
+        }
 
         return $this->readWhile('ctype_digit');
     }
@@ -568,8 +700,9 @@ class Reader
     public function readAlpha()
     {
 
-        if (!$this->peekAlpha())
+        if (!$this->peekAlpha()) {
             return null;
+        }
 
         return $this->readWhile('ctype_alpha');
     }
@@ -582,8 +715,9 @@ class Reader
     public function readAlphaNumeric()
     {
 
-        if (!$this->peekAlphaNumeric())
+        if (!$this->peekAlphaNumeric()) {
             return null;
+        }
 
         return $this->readWhile('ctype_alnum');
     }
@@ -601,15 +735,16 @@ class Reader
     {
 
         if ($prefix) {
-
-            if ($this->peek(mb_strlen($prefix)) !== $prefix)
+            if ($this->peek(mb_strlen($prefix)) !== $prefix) {
                 return null;
+            }
 
             $this->consume();
-        } else if (!$this->peekAlphaIdentifier($allowedChars))
+        } elseif (!$this->peekAlphaIdentifier($allowedChars)) {
             return null;
+        }
 
-        return $this->readWhile(function($char) use ($allowedChars) {
+        return $this->readWhile(function ($char) use ($allowedChars) {
 
             return $this->peekIdentifier($allowedChars);
         });
@@ -631,8 +766,9 @@ class Reader
     public function readString(array $escapeSequences = null, $raw = false)
     {
 
-        if (!$this->peekQuote())
+        if (!$this->peekQuote()) {
             return null;
+        }
 
         $escapeSequences = $escapeSequences ?: [];
         $quoteStyle = $this->consume();
@@ -642,34 +778,31 @@ class Reader
         $char = null;
         $string = '';
         while ($this->hasLength()) {
-
             $last = $char;
             $char = $this->peek();
             $this->consume();
 
             //Handle escaping based on passed sequences
             if ($char === '\\') {
-
                 //Peek the next char
                 $next = $this->peek();
                 if (isset($escapeSequences[$next])) {
-
                     $this->consume();
 
-                    if ($raw)
+                    if ($raw) {
                         $string .= '\\';
+                    }
 
                     $string .= $escapeSequences[$next];
                     continue;
                 }
-
             }
 
             //End the string (Escaped quotes have already been handled)
             if ($char === $quoteStyle) {
-
-                if ($raw)
+                if ($raw) {
                     $string = $quoteStyle.$string.$quoteStyle;
+                }
 
                 return $string;
             }
@@ -700,8 +833,9 @@ class Reader
     public function readExpression(array $breaks = null, array $brackets = null)
     {
 
-        if (!$this->hasLength())
+        if (!$this->hasLength()) {
             return null;
+        }
 
         $breaks = $breaks ?: [];
         $brackets = $brackets ?: $this->expressionBrackets;
@@ -709,41 +843,42 @@ class Reader
         $char = null;
         $bracketStack = [];
         while ($this->hasLength()) {
-
             //Append a string if any was found
             //Notice there can be brackets in strings, we dont want to
             //count those
             $expression .= $this->readString(null, true);
 
-            if (!$this->hasLength())
+            if (!$this->hasLength()) {
                 break;
+            }
 
             //Check for breaks
             if (count($bracketStack) === 0) {
-
-                foreach ($breaks as $break)
-                    if ($this->peekString($break))
+                foreach ($breaks as $break) {
+                    if ($this->peekString($break)) {
                         break 2;
+                    }
+                }
             }
 
             //Count brackets
             $char = $this->peek();
             if (in_array($char, array_keys($brackets), true)) {
-
                 $bracketStack[] = $char;
-            } else if (in_array($char, array_values($brackets), true)) {
-
-                if (count($bracketStack) < 1)
+            } elseif (in_array($char, array_values($brackets), true)) {
+                if (count($bracketStack) < 1) {
                     $this->throwException(
                         "Unexpected bracket $char encountered, no brackets open"
                     );
+                }
 
                 $last = count($bracketStack) - 1;
-                if ($char !== $brackets[$bracketStack[$last]])
+                if ($char !== $brackets[$bracketStack[$last]]) {
                     $this->throwException(
                         "Unclosed bracket {$bracketStack[$last]} encountered, "
                         ."got $char instead"
                     );
+                }
 
                 array_pop($bracketStack);
             }
@@ -752,13 +887,26 @@ class Reader
             $this->consume();
         }
 
-        if (count($bracketStack) > 0)
+        if (count($bracketStack) > 0) {
             $this->throwException(
                 "Unclosed brackets ".implode(', ', $bracketStack)." encountered "
                 ."at end of expression"
             );
+        }
 
         return trim($expression);
+    }
+
+    protected function getLastPregErrorText()
+    {
+
+        $code = preg_last_error();
+
+        if (!isset(self::$pregErrors[$code])) {
+            $code = PREG_NO_ERROR;
+        }
+
+        return self::$pregErrors[$code];
     }
 
     /**
