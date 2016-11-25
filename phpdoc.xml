@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phpdoc>
-    <title><![CDATA[Phug - Lexer]]></title>
+    <title><![CDATA[Phug]]></title>
     <parser>
         <target>docs/structure</target>
         <extensions>
@@ -14,8 +14,6 @@
         <template name="clean" />
     </transformations>
     <files>
-        <directory>.</directory>
-        <ignore>tests/*</ignore>
-        <ignore>vendor/*</ignore>
+        <directory>./src</directory>
     </files>
 </phpdoc>

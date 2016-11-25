@@ -5,7 +5,7 @@ namespace Tale\Phug\Test;
 use Phug\Reader;
 use Phug\ReaderException;
 
-class ReaderTest extends \PHPUnit_Framework_TestCase
+class PragmaticTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testReadString()

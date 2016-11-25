@@ -24,6 +24,7 @@ before_script:
 script:
     - phpunit
     - phpcs
+    - php bin/validate-coverage
 
 notifications:
     slack: phug:nzXFnxhU14RWK2EQSDL0u08z

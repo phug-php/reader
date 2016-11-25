@@ -88,14 +88,14 @@ class Reader
      *
      * @var int
      */
-    private $line = 0;
+    private $line;
 
     /**
      * Contains the offset of the line the reader is currently on.
      *
      * @var int
      */
-    private $offset = 0;
+    private $offset;
 
     /**
      * Contains the last result of `peek()`, if any.
@@ -133,8 +133,8 @@ class Reader
         $this->encoding = $encoding ?: $this->defaultEncoding;
 
         $this->position = 0;
-        $this->line = 0;
-        $this->offset = 0;
+        $this->line = 1;
+        $this->offset = 1;
 
         $this->lastPeekResult = null;
         $this->lastMatchResult = null;
@@ -277,6 +277,9 @@ class Reader
     public function peek($length = null, $start = null)
     {
 
+        $this->lastPeekResult = null;
+        $this->nextConsumeLength = null;
+        
         if (!$this->hasLength()) {
             return null;
         }
@@ -320,11 +323,14 @@ class Reader
 
         $modifiers = $modifiers ?: '';
         $ignoredSuffixes = $ignoredSuffixes ?: "\n";
+        $matches = null;
+        $this->lastMatchResult = null;
+        $this->nextConsumeLength = null;
 
         $result = preg_match(
             "/^$pattern/$modifiers",
             $this->input,
-            $this->lastMatchResult
+            $matches
         );
 
         if ($result === false) {
@@ -337,6 +343,7 @@ class Reader
             return false;
         }
 
+        $this->lastMatchResult = $matches;
         $this->nextConsumeLength = mb_strlen(rtrim($this->lastMatchResult[0], $ignoredSuffixes));
         return true;
     }
@@ -406,7 +413,6 @@ class Reader
         }
 
         $consumedPart = mb_substr($this->input, 0, $length, $this->encoding);
-        ;
         $this->input = mb_substr($this->input, $length, mb_strlen($this->input) - $length, $this->encoding);
         $this->position += $length;
         $this->offset += $length;
@@ -419,10 +425,10 @@ class Reader
             //if we only have one new-line character, the new offset is 0
             //Else the offset is the length of the last line read - 1
             if (mb_strlen($consumedPart, $this->encoding) === 1) {
-                $this->offset = 0;
+                $this->offset = 1;
             } else {
                 $parts = explode("\n", $consumedPart);
-                $this->offset = mb_strlen($parts[count($parts) - 1], $this->encoding) - 1;
+                $this->offset = mb_strlen($parts[count($parts) - 1], $this->encoding);
             }
         }
 
