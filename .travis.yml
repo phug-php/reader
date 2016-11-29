@@ -11,20 +11,10 @@ php:
     - hhvm
 
 install:
-    - composer self-update
-    - composer install
-    - pear config-set auto_discover 1
-    - pear channel-update pear.php.net
-    - pear install PHP_CodeSniffer
-    - phpenv rehash
-
-before_script:
-    - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then phpenv config-rm xdebug.ini; fi;
+    - php bin/check $TRAVIS_PHP_VERSION install
 
 script:
-    - phpunit
-    - phpcs
-    - php bin/validate-coverage
+    - php bin/check $TRAVIS_PHP_VERSION
 
 notifications:
     slack: phug:nzXFnxhU14RWK2EQSDL0u08z
