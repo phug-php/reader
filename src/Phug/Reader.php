@@ -2,15 +2,17 @@
 
 namespace Phug;
 
-use Phug\Reader\LineOffsetTrait;
-use Phug\Reader\PregUtil;
-
 /**
  * A string reading utility that searches strings byte by byte.
  */
 class Reader
 {
 
+    /**
+     * An array of PREG errors with a good error message.
+     *
+     * @var array
+     */
     private static $pregErrors = [
         PREG_NO_ERROR              => 'No error occured',
         PREG_INTERNAL_ERROR        => 'An internal error occured',
@@ -335,7 +337,7 @@ class Reader
 
         if ($result === false) {
             $this->throwException(
-                'Failed to match pattern: '.$this->getLastPregErrorText()
+                'Failed to match pattern: '.$this->getPregErrorText()
             );
         }
 
@@ -750,7 +752,7 @@ class Reader
             return null;
         }
 
-        return $this->readWhile(function ($char) use ($allowedChars) {
+        return $this->readWhile(function () use ($allowedChars) {
 
             return $this->peekIdentifier($allowedChars);
         });
@@ -780,11 +782,10 @@ class Reader
         $quoteStyle = $this->consume();
         $escapeSequences[$quoteStyle] = $quoteStyle;
 
-        $last = null;
         $char = null;
         $string = '';
+        $closed = false;
         while ($this->hasLength()) {
-            $last = $char;
             $char = $this->peek();
             $this->consume();
 
@@ -806,21 +807,25 @@ class Reader
 
             //End the string (Escaped quotes have already been handled)
             if ($char === $quoteStyle) {
-                if ($raw) {
-                    $string = $quoteStyle.$string.$quoteStyle;
-                }
+                $closed = true;
 
-                return $string;
+                break;
             }
 
             $string .= $char;
         }
 
-        $this->throwException(
-            "Unclosed string ($quoteStyle) encountered"
-        );
+        if (!$closed) {
+            $this->throwException(
+                "Unclosed string ($quoteStyle) encountered"
+            );
+        }
 
-        return '';
+        if ($raw) {
+            $string = $quoteStyle.$string.$quoteStyle;
+        }
+
+        return $string;
     }
 
     /**
@@ -903,10 +908,16 @@ class Reader
         return trim($expression);
     }
 
-    protected function getLastPregErrorText()
+    /**
+     * Returns a describing text for the last PREG error that happened.
+     *
+     * @param null $code
+     * @return string
+     */
+    protected function getPregErrorText($code = null)
     {
 
-        $code = preg_last_error();
+        $code = $code ?: preg_last_error();
 
         if (!isset(self::$pregErrors[$code])) {
             $code = PREG_NO_ERROR;
