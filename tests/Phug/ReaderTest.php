@@ -10,14 +10,12 @@ use Phug\ReaderException;
  */
 class ReaderTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @covers ::__construct
      * @covers ::getInput
      */
     public function testGetInput()
     {
-        
         $reader = new Reader('some string');
         self::assertEquals('some string', $reader->getInput());
     }
@@ -28,7 +26,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testIfDefaultEncodingIsUtf8ByDefault()
     {
-
         $reader = new Reader('');
         self::assertEquals('UTF-8', $reader->getEncoding());
     }
@@ -39,7 +36,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetEncoding()
     {
-
         $reader = new Reader('', 'ASCII');
         self::assertEquals('ASCII', $reader->getEncoding());
     }
@@ -50,7 +46,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetLastPeekResult()
     {
-
         $reader = new Reader('abc');
         self::assertEquals(null, $reader->getLastPeekResult(), 'not peeked yet');
 
@@ -64,7 +59,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetLastMatchResult()
     {
-
         $reader = new Reader('abc');
         self::assertEquals(null, $reader->getLastMatchResult(), 'not matched yet');
 
@@ -84,10 +78,9 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNextConsumeLength()
     {
-
         $reader = new Reader('abc def');
         self::assertEquals(null, $reader->getNextConsumeLength(), 'not peeked/matched yet');
-        
+
         $reader->peek(2);
         self::assertEquals(2, $reader->getNextConsumeLength(), 'peeked');
 
@@ -104,7 +97,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testIfMatchIgnoresTrailingNewLines()
     {
-
         $reader = new Reader("some\nstring");
         $reader->match('some\s');
         self::assertEquals(4, $reader->getNextConsumeLength());
@@ -118,7 +110,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testCorrectCalculationOfPositionInformation()
     {
-
         $reader = new Reader("some\nstring\na\nb\ncde");
         self::assertEquals(0, $reader->getPosition(), 'position after construct');
         self::assertEquals(1, $reader->getLine(), 'line after construct');
@@ -146,7 +137,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testNormalization()
     {
-
         $reader = new Reader("some\r\nstring\n\0maybe hack \vattempt?");
         $reader->normalize();
         self::assertEquals("some\nstring\nmaybe hack attempt?", $reader->getInput());
@@ -158,8 +148,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetLength()
     {
-
-        $reader = new Reader("This is some string");
+        $reader = new Reader('This is some string');
         self::assertEquals(19, $reader->getLength());
         $reader->consume(4);
         self::assertEquals(15, $reader->getLength());
@@ -171,8 +160,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testHasLength()
     {
-
-        $reader = new Reader("Some string");
+        $reader = new Reader('Some string');
         $reader->consume(4);
         self::assertTrue($reader->hasLength());
         $reader->consume(6);
@@ -189,8 +177,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeek()
     {
-
-        $reader = new Reader("This");
+        $reader = new Reader('This');
         self::assertEquals('T', $reader->peek());
         self::assertEquals('T', $reader->getLastPeekResult());
         self::assertEquals(1, $reader->getNextConsumeLength());
@@ -214,7 +201,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekThrowsExceptionOnInvalidArguments()
     {
-
         self::setExpectedException(\InvalidArgumentException::class);
         (new Reader('a'))->peek(0);
     }
@@ -227,8 +213,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatch()
     {
-
-        $reader = new Reader("This");
+        $reader = new Reader('This');
         self::assertFalse($reader->match('this'));
         self::assertTrue($reader->match('[Tt]his'));
         self::assertTrue($reader->match('Th(.*)'), 'This');
@@ -254,7 +239,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchFailsOnPregError()
     {
-
         self::setExpectedException(ReaderException::class);
         (new Reader('foobar foobar foobar'))->match('(?:\D+|<\d+>)*[!?]');
     }
@@ -265,12 +249,11 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMatch()
     {
-
-        $reader = new Reader("This");
+        $reader = new Reader('This');
         self::assertEquals(true, $reader->match('Th(.*)'), 'Unnamed');
         self::assertEquals('is', $reader->getMatch(1));
 
-        $reader = new Reader("This");
+        $reader = new Reader('This');
         self::assertEquals(true, $reader->match('Th(?<name>.*)'), 'Named');
         self::assertEquals('is', $reader->getMatch('name'));
     }
@@ -282,7 +265,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMatchCantOperateOnMissingMatchCall()
     {
-
         self::setExpectedException(ReaderException::class);
         (new Reader('a'))->getMatch('test');
     }
@@ -293,8 +275,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMatchData()
     {
-
-        $reader = new Reader("This is Sparta");
+        $reader = new Reader('This is Sparta');
         self::assertEquals(true, $reader->match('(?<who>\w+)\s*is\s*(?<what>\w+)'));
         self::assertEquals(['who' => 'This', 'what' => 'Sparta'], $reader->getMatchData());
     }
@@ -306,7 +287,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMatchDataCantOperateOnMissingMatchCall()
     {
-
         self::setExpectedException(ReaderException::class);
         (new Reader('a'))->getMatchData();
     }
@@ -318,8 +298,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testConsume()
     {
-
-
         $reader = new Reader("This is Sparta\n");
         self::assertEquals(15, $reader->getLength());
 
@@ -348,7 +326,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testConsumeThrowsExceptionOnInvalidConsumeLength()
     {
-
         self::setExpectedException(ReaderException::class);
         (new Reader('a'))->consume();
     }
@@ -358,15 +335,11 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadWhile()
     {
-
-
-        $reader = new Reader("This is some string read up to!here and then not anymore");
+        $reader = new Reader('This is some string read up to!here and then not anymore');
         self::assertEquals('', $reader->readWhile(function ($char) {
-
             return $char === 'a';
         }));
         self::assertEquals('This is some string read up to', $reader->readWhile(function ($char) {
-
             return $char !== '!';
         }));
 
@@ -378,7 +351,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadWhileExpectsValidCallback()
     {
-
         self::setExpectedException(\InvalidArgumentException::class);
         (new Reader('a'))->readWhile('test');
     }
@@ -388,15 +360,11 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadUntil()
     {
-
-
-        $reader = new Reader("This is some string read up to!here and then not anymore");
+        $reader = new Reader('This is some string read up to!here and then not anymore');
         self::assertEquals('', $reader->readUntil(function ($char) {
-
             return $char !== 'a';
         }));
         self::assertEquals('This is some string read up to', $reader->readUntil(function ($char) {
-
             return $char === '!';
         }));
     }
@@ -406,9 +374,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekChar()
     {
-
-
-        $reader = new Reader("This is some string read up to!here and then not anymore");
+        $reader = new Reader('This is some string read up to!here and then not anymore');
         self::assertFalse($reader->peekChar('t'));
         self::assertTrue($reader->peekChar('T'));
     }
@@ -418,9 +384,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekChars()
     {
-
-
-        $reader = new Reader("This is some string read up to!here and then not anymore");
+        $reader = new Reader('This is some string read up to!here and then not anymore');
         self::assertFalse($reader->peekChars('this'));
         self::assertTrue($reader->peekChars('hoT'));
         self::assertTrue($reader->peekChars(['h', 'o', 'T']));
@@ -431,9 +395,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekString()
     {
-
-
-        $reader = new Reader("This is some string read up to!here and then not anymore");
+        $reader = new Reader('This is some string read up to!here and then not anymore');
         self::assertFalse($reader->peekString('this'));
         self::assertTrue($reader->peekString('This'));
         self::assertTrue($reader->peekString('This is some'));
@@ -445,8 +407,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekNewLine()
     {
-
-
         $reader = new Reader("Some text\nsome other line");
         self::assertFalse($reader->peekNewLine());
         $reader->consume(9);
@@ -459,8 +419,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekIndentation()
     {
-
-
         $reader = new Reader("a \tsome text");
         self::assertFalse($reader->peekIndentation());
         $reader->consume(1);
@@ -477,8 +435,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekQuote()
     {
-
-
         $reader = new Reader("a'\"`some text");
         self::assertFalse($reader->peekQuote());
         $reader->consume(1);
@@ -497,8 +453,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekSpace()
     {
-
-
         $reader = new Reader("a \n\r\tsome text");
         self::assertFalse($reader->peekSpace());
         $reader->consume(1);
@@ -519,9 +473,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekDigit()
     {
-
-
-        $reader = new Reader("a1some text");
+        $reader = new Reader('a1some text');
         self::assertFalse($reader->peekDigit());
         $reader->consume(1);
         self::assertTrue($reader->peekDigit());
@@ -535,9 +487,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekAlpha()
     {
-
-
-        $reader = new Reader("1a34some text");
+        $reader = new Reader('1a34some text');
         self::assertFalse($reader->peekAlpha());
         $reader->consume(1);
         self::assertTrue($reader->peekAlpha());
@@ -551,9 +501,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekAlphaNumeric()
     {
-
-
-        $reader = new Reader("!a34?%me text");
+        $reader = new Reader('!a34?%me text');
         self::assertFalse($reader->peekAlphaNumeric());
         $reader->consume(1);
         self::assertTrue($reader->peekAlphaNumeric(), 'a');
@@ -571,9 +519,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekAlphaIdentifier()
     {
-
-
-        $reader = new Reader("!_a4?%me text");
+        $reader = new Reader('!_a4?%me text');
         self::assertFalse($reader->peekAlphaIdentifier());
         $reader->consume(1);
         self::assertTrue($reader->peekAlphaIdentifier(), '_');
@@ -589,9 +535,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testPeekIdentifier()
     {
-
-
-        $reader = new Reader("!_a4?%me text");
+        $reader = new Reader('!_a4?%me text');
         self::assertFalse($reader->peekIdentifier());
         $reader->consume(1);
         self::assertTrue($reader->peekIdentifier(), '_');
@@ -608,8 +552,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadIndentation()
     {
-
-
         $reader = new Reader("\t    some indented text");
         self::assertEquals("\t    ", $reader->readIndentation());
         self::assertNull($reader->readIndentation());
@@ -620,10 +562,8 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadUntilNewLine()
     {
-
-
         $reader = new Reader("some text\nsome next line");
-        self::assertEquals("some text", $reader->readUntilNewLine());
+        self::assertEquals('some text', $reader->readUntilNewLine());
         self::assertEquals('', $reader->readUntilNewLine());
     }
 
@@ -632,8 +572,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadSpaces()
     {
-
-
         $reader = new Reader("  \n\t  \r\nsome text");
         self::assertEquals("  \n\t  \r\n", $reader->readSpaces());
         self::assertNull($reader->readSpaces());
@@ -644,10 +582,8 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadDigits()
     {
-
-
-        $reader = new Reader("616167some text");
-        self::assertEquals("616167", $reader->readDigits());
+        $reader = new Reader('616167some text');
+        self::assertEquals('616167', $reader->readDigits());
         self::assertNull($reader->readDigits());
     }
 
@@ -656,10 +592,8 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadAlpha()
     {
-
-
-        $reader = new Reader("sometext616167");
-        self::assertEquals("sometext", $reader->readAlpha());
+        $reader = new Reader('sometext616167');
+        self::assertEquals('sometext', $reader->readAlpha());
         self::assertNull($reader->readAlpha());
     }
 
@@ -668,10 +602,8 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadAlphaNumeric()
     {
-
-
-        $reader = new Reader("sometext6161!67");
-        self::assertEquals("sometext6161", $reader->readAlphaNumeric());
+        $reader = new Reader('sometext6161!67');
+        self::assertEquals('sometext6161', $reader->readAlphaNumeric());
         self::assertNull($reader->readAlphaNumeric());
     }
 
@@ -680,30 +612,25 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadIdentifier()
     {
-
-        $reader = new Reader("1sometext6161!67");
+        $reader = new Reader('1sometext6161!67');
         self::assertNull($reader->readIdentifier());
         $reader->consume(1);
-        self::assertEquals("sometext6161", $reader->readIdentifier());
+        self::assertEquals('sometext6161', $reader->readIdentifier());
         self::assertNull($reader->readIdentifier());
 
-
-        $reader = new Reader("1@sometext6161!67");
+        $reader = new Reader('1@sometext6161!67');
         self::assertNull($reader->readIdentifier('@'));
         $reader->consume(1);
         self::assertNull($reader->readIdentifier());
-        self::assertEquals("sometext6161", $reader->readIdentifier('@'));
+        self::assertEquals('sometext6161', $reader->readIdentifier('@'));
         self::assertNull($reader->readIdentifier());
     }
-
-
 
     /**
      * @covers ::readString
      */
     public function testReadString()
     {
-
         self::assertNull((new Reader('abc'))->readString());
         self::assertEquals('abc"def', (new Reader('"abc\"def" ghi'))->readString());
         self::assertEquals('abc"def', (new Reader('\'abc"def\' ghi'))->readString());
@@ -711,7 +638,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         self::assertEquals('"abc\"def"', (new Reader('"abc\"def" ghi'))->readString(null, true));
         self::assertEquals('`abc\`def`', (new Reader('`abc\`def` ghi'))->readString(null, true));
         self::assertEquals('abc a fucking bear def', (new Reader('"abc\Xdef" ghi'))->readString([
-            'X' => ' a fucking bear '
+            'X' => ' a fucking bear ',
         ]));
     }
 
@@ -724,17 +651,15 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadStringFailsOnNotCorrectlyClosedStrings($string)
     {
-
         self::setExpectedException(ReaderException::class);
         (new Reader($string))->readString();
     }
 
     public function provideNotCorrectlyClosedStrings()
     {
-
         return [
             ['"abc'],
-            ['"\'abc\'']
+            ['"\'abc\''],
         ];
     }
 
@@ -743,7 +668,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadExpression()
     {
-
         self::assertNull((new Reader(''))->readExpression());
         self::assertEquals('"abc\"def"', (new Reader('"abc\"def"'))->readExpression());
         self::assertEquals('{ $abc (def) }', (new Reader('{ $abc (def) } ghi'))->readExpression([' ']));
@@ -760,19 +684,17 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testReadExpressionFailsOnNotCorrectlyClosedBrackets($string)
     {
-
         self::setExpectedException(ReaderException::class);
         (new Reader($string))->readExpression([',']);
     }
 
     public function provideNotCorrectlyClosedBrackets()
     {
-
         return [
             ['([), '],
             ['([)]'],
             ['($a{$b},'],
-            [')']
+            [')'],
         ];
     }
 
@@ -781,7 +703,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetPregErrorText()
     {
-
         $ref = new \ReflectionClass(Reader::class);
         $method = $ref->getMethod('getPregErrorText');
         $method->setAccessible(true);
@@ -789,10 +710,9 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $reader = new Reader('');
         $this->assertEquals('No error occured', $method->invokeArgs($reader, [1337]));
     }
-    
+
     public function testReadmeFirstLexingExample()
     {
-
 
         //Some C-style example code
         $code = 'someVar = {a, "this is a string (really, it \"is\")", func(b, c), d}';
@@ -864,7 +784,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
             }
 
             throw new \Exception(
-                "Unexpected ".$reader->peek(10)
+                'Unexpected '.$reader->peek(10)
             );
         }
 
@@ -884,13 +804,12 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
             ['type' => 'listEnd'],
             ['type' => 'next'],
             ['type' => 'identifier', 'name' => 'd'],
-            ['type' => 'blockEnd']
+            ['type' => 'blockEnd'],
         ], $tokens);
     }
 
     public function testReadmeSecondLexingExample()
     {
-
         $jade = 'a(href=getUri(\'/abc\', true), title=(title ? title : \'Sorry, no title.\'))';
 
         $reader = new Reader($jade);
@@ -906,44 +825,36 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
                 //Ignore spaces
                 $reader->readSpaces();
 
-
                 //Scan the attribute name
                 if (!($name = $reader->readIdentifier())) {
-                    throw new \Exception("Attributes need a name!");
+                    throw new \Exception('Attributes need a name!');
                 }
-
 
                 //Ignore spaces
                 $reader->readSpaces();
 
-
                 //Make sure there's a =-character
                 if (!$reader->peekChar('=')) {
-                    throw new \Exception("Failed to read: Expected attribute value");
+                    throw new \Exception('Failed to read: Expected attribute value');
                 }
 
                 $reader->consume();
 
-
                 //Ignore spaces
                 $reader->readSpaces();
-
 
                 //Read the expression until , or ) is encountered
                 //It will ignore , and ) inside any kind of brackets and count brackets correctly until we actually
                 //reached the end-bracket
                 $value = $reader->readExpression([',', ')']);
 
-
                 //Add the attribute to our attribute array
                 $attributes[$name] = $value;
-
 
                 //If we don't encounter a , to go on, we break the loop
                 if (!$reader->peekChar(',')) {
                     break;
                 }
-
 
                 //Else we consume the , and continue our attribute parsing
                 $reader->consume();
@@ -951,17 +862,16 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
             //Now make sure we actually closed our attribute block correctly.
             if (!$reader->peekChar(')')) {
-                throw new \Exception("Failed to read: Expected closing bracket");
+                throw new \Exception('Failed to read: Expected closing bracket');
             }
         }
-
 
         $element = ['identifier' => $identifier, 'attributes' => $attributes];
         $this->assertEquals([
             'identifier' => 'a',
             'attributes' => [
-                'href' => 'getUri(\'/abc\', true)',
-                'title' => '(title ? title : \'Sorry, no title.\')'
-            ]], $element);
+                'href'  => 'getUri(\'/abc\', true)',
+                'title' => '(title ? title : \'Sorry, no title.\')',
+            ], ], $element);
     }
 }

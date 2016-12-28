@@ -7,7 +7,6 @@ namespace Phug;
  */
 class Reader
 {
-
     /**
      * An array of PREG errors with a good error message.
      *
@@ -19,7 +18,7 @@ class Reader
         PREG_BACKTRACK_LIMIT_ERROR => 'The backtrack limit was exhausted (Increase pcre.backtrack_limit in php.ini)',
         PREG_RECURSION_LIMIT_ERROR => 'Recursion limit was exhausted (Increase pcre.recursion_limit in php.ini)',
         PREG_BAD_UTF8_ERROR        => 'Bad UTF8 error!',
-        PREG_BAD_UTF8_OFFSET_ERROR => 'Bad UTF8 offset error'
+        PREG_BAD_UTF8_OFFSET_ERROR => 'Bad UTF8 offset error',
     ];
 
     /**
@@ -60,7 +59,7 @@ class Reader
     protected $expressionBrackets = [
         '(' => ')',
         '[' => ']',
-        '{' => '}'
+        '{' => '}',
     ];
 
     /**
@@ -83,7 +82,6 @@ class Reader
      * @var int
      */
     private $position;
-
 
     /**
      * Contains the line the reader is currently on.
@@ -125,13 +123,12 @@ class Reader
     /**
      * Creates a new reader instance.
      *
-     * @param string $input the input string to read from.
+     * @param string      $input    the input string to read from.
      * @param string|null $encoding the encoding used in the reading process.
      */
     public function __construct($input, $encoding = null)
     {
-
-        $this->input = (string)$input;
+        $this->input = (string) $input;
         $this->encoding = $encoding ?: $this->defaultEncoding;
 
         $this->position = 0;
@@ -152,7 +149,6 @@ class Reader
      */
     public function getInput()
     {
-
         return $this->input;
     }
 
@@ -163,18 +159,16 @@ class Reader
      */
     public function getEncoding()
     {
-
         return $this->encoding;
     }
 
     /**
-     * Returns the last result of a `peek()`-call
+     * Returns the last result of a `peek()`-call.
      *
      * @return string
      */
     public function getLastPeekResult()
     {
-
         return $this->lastPeekResult;
     }
 
@@ -185,7 +179,6 @@ class Reader
      */
     public function getLastMatchResult()
     {
-
         return $this->lastMatchResult;
     }
 
@@ -196,7 +189,6 @@ class Reader
      */
     public function getNextConsumeLength()
     {
-
         return $this->nextConsumeLength;
     }
 
@@ -217,7 +209,6 @@ class Reader
      */
     public function getLine()
     {
-
         return $this->line;
     }
 
@@ -228,7 +219,6 @@ class Reader
      */
     public function getOffset()
     {
-
         return $this->offset;
     }
 
@@ -239,7 +229,6 @@ class Reader
      */
     public function normalize()
     {
-
         $this->input = str_replace(str_split($this->badCharacters), '', $this->input);
 
         return $this;
@@ -252,7 +241,6 @@ class Reader
      */
     public function getLength()
     {
-
         return mb_strlen($this->input, $this->encoding);
     }
 
@@ -263,7 +251,6 @@ class Reader
      */
     public function hasLength()
     {
-
         return $this->getLength() > 0;
     }
 
@@ -273,17 +260,17 @@ class Reader
      * The peeked length will be stored and can be consumed with `consume()` later on.
      *
      * @param int $length the length to consume (default: 1).
-     * @param int $start the offset to start on based on the current offset (default: 0).
+     * @param int $start  the offset to start on based on the current offset (default: 0).
+     *
      * @return string|null the peeked string or null if reading is finished.
      */
     public function peek($length = null, $start = null)
     {
-
         $this->lastPeekResult = null;
         $this->nextConsumeLength = null;
-        
+
         if (!$this->hasLength()) {
-            return null;
+            return;
         }
 
         $length = $length !== null ? $length : 1;
@@ -313,16 +300,16 @@ class Reader
      *
      * Notice that ^ is automatically prepended to the pattern.
      *
-     * @param string $pattern the regular expression without slashes or modifiers.
-     * @param string $modifiers the modifiers for the regular expression.
+     * @param string $pattern         the regular expression without slashes or modifiers.
+     * @param string $modifiers       the modifiers for the regular expression.
      * @param string $ignoredSuffixes characters that are scanned, but don't end up in the consume length.
-     * @return bool wether the expression matched or not.
      *
      * @throws ReaderException
+     *
+     * @return bool wether the expression matched or not.
      */
     public function match($pattern, $modifiers = null, $ignoredSuffixes = null)
     {
-
         $modifiers = $modifiers ?: '';
         $ignoredSuffixes = $ignoredSuffixes ?: "\n";
         $matches = null;
@@ -347,6 +334,7 @@ class Reader
 
         $this->lastMatchResult = $matches;
         $this->nextConsumeLength = mb_strlen(rtrim($this->lastMatchResult[0], $ignoredSuffixes));
+
         return true;
     }
 
@@ -354,11 +342,11 @@ class Reader
      * Returns a single capture group matched with `match()` based on its index or name.
      *
      * @param string|int $key the index or name of the capturing group.
+     *
      * @return string|null the matched string part.
      */
     public function getMatch($key)
     {
-
         if (!$this->lastMatchResult) {
             $this->throwException(
                 "Failed to get match $key: No match result found. Use match first"
@@ -377,10 +365,9 @@ class Reader
      */
     public function getMatchData()
     {
-
         if (!$this->lastMatchResult) {
             $this->throwException(
-                "Failed to get match data: No match result found. Use match first"
+                'Failed to get match data: No match result found. Use match first'
             );
         }
 
@@ -401,11 +388,11 @@ class Reader
      * Use this after successful `peek()` or `match()`-operations.
      *
      * @param int $length the length to consume (default: null)
+     *
      * @return string
      */
     public function consume($length = null)
     {
-
         $length = $length ?: $this->nextConsumeLength;
 
         if ($length === null) {
@@ -446,21 +433,21 @@ class Reader
      *
      * The string part is consumed directly, no `consume()` is required after `read()`-operations.
      *
-     * @param callable $callback the callback to check string parts against.
-     * @param int $peekLength the length to peek for each iteration. (default: 1)
+     * @param callable $callback   the callback to check string parts against.
+     * @param int      $peekLength the length to peek for each iteration. (default: 1)
+     *
      * @return string|null the result string or null if finished reading.
      */
     public function readWhile($callback, $peekLength = null)
     {
-
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException(
-                "Argument 1 passed to Reader->readWhile needs to be callback"
+                'Argument 1 passed to Reader->readWhile needs to be callback'
             );
         }
 
         if (!$this->hasLength()) {
-            return null;
+            return;
         }
 
         if ($peekLength === null) {
@@ -478,15 +465,14 @@ class Reader
     /**
      * The opposite of `readWhile()`. Reads a string until the callback matches the string part.
      *
-     * @param callable $callback the callback to check string parts against.
-     * @param int $peekLength the length to peek for each iteration. (default: 1)
+     * @param callable $callback   the callback to check string parts against.
+     * @param int      $peekLength the length to peek for each iteration. (default: 1)
+     *
      * @return string|null the result string or null if finished reading.
      */
     public function readUntil($callback, $peekLength = null)
     {
-
         return $this->readWhile(function ($char) use ($callback) {
-
             return !call_user_func($callback, $char);
         }, $peekLength);
     }
@@ -495,11 +481,11 @@ class Reader
      * Peeks one byte and checks if it equals the given character.
      *
      * @param string $char the character to check against.
+     *
      * @return bool whether it matches or not.
      */
     public function peekChar($char)
     {
-
         return $this->peek() === $char;
     }
 
@@ -509,11 +495,11 @@ class Reader
      * You can pass the characters as a string containing them all or as an array.
      *
      * @param string|array $chars the characters to check against.
+     *
      * @return bool whether one of them match or not.
      */
     public function peekChars($chars)
     {
-
         return in_array($this->peek(), is_array($chars) ? $chars : str_split($chars), true);
     }
 
@@ -521,11 +507,11 @@ class Reader
      * Peeks and checks if it equals the given string.
      *
      * @param string $string the string to check against.
+     *
      * @return bool whether it matches or not.
      */
     public function peekString($string)
     {
-
         return $this->peek(mb_strlen($string)) === $string;
     }
 
@@ -536,7 +522,6 @@ class Reader
      */
     public function peekNewLine()
     {
-
         return $this->peekChars("\n");
     }
 
@@ -549,7 +534,6 @@ class Reader
      */
     public function peekIndentation()
     {
-
         return $this->peekChars($this->indentCharacters);
     }
 
@@ -562,7 +546,6 @@ class Reader
      */
     public function peekQuote()
     {
-
         return $this->peekChars($this->quoteCharacters);
     }
 
@@ -575,7 +558,6 @@ class Reader
      */
     public function peekSpace()
     {
-
         return ctype_space($this->peek());
     }
 
@@ -588,7 +570,6 @@ class Reader
      */
     public function peekDigit()
     {
-
         return ctype_digit($this->peek());
     }
 
@@ -601,7 +582,6 @@ class Reader
      */
     public function peekAlpha()
     {
-
         return ctype_alpha($this->peek());
     }
 
@@ -614,7 +594,6 @@ class Reader
      */
     public function peekAlphaNumeric()
     {
-
         return ctype_alnum($this->peek());
     }
 
@@ -622,11 +601,11 @@ class Reader
      * Peeks one byte and checks if it could be a valid alphabetical identifier.
      *
      * @param array $allowedChars additional chars to allow in the identifier (default: ['_'])
+     *
      * @return bool whether it could be or not.
      */
     public function peekAlphaIdentifier(array $allowedChars = null)
     {
-
         $allowedChars = $allowedChars ?: ['_'];
 
         return $this->peekAlpha() || $this->peekChars($allowedChars);
@@ -636,11 +615,11 @@ class Reader
      * Peeks one byte and checks if it could be a valid alpha-numeric identifier.
      *
      * @param array $allowedChars additional chars to allow in the identifier (default: ['_'])
+     *
      * @return bool whether it could be or not.
      */
     public function peekIdentifier(array $allowedChars = null)
     {
-
         return $this->peekAlphaIdentifier($allowedChars) || $this->peekDigit();
     }
 
@@ -651,9 +630,8 @@ class Reader
      */
     public function readIndentation()
     {
-
         if (!$this->peekIndentation()) {
-            return null;
+            return;
         }
 
         return $this->readWhile([$this, 'peekIndentation']);
@@ -666,7 +644,6 @@ class Reader
      */
     public function readUntilNewLine()
     {
-
         return $this->readUntil([$this, 'peekNewLine']);
     }
 
@@ -677,9 +654,8 @@ class Reader
      */
     public function readSpaces()
     {
-
         if (!$this->peekSpace()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_space');
@@ -692,9 +668,8 @@ class Reader
      */
     public function readDigits()
     {
-
         if (!$this->peekDigit()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_digit');
@@ -707,9 +682,8 @@ class Reader
      */
     public function readAlpha()
     {
-
         if (!$this->peekAlpha()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_alpha');
@@ -722,9 +696,8 @@ class Reader
      */
     public function readAlphaNumeric()
     {
-
         if (!$this->peekAlphaNumeric()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_alnum');
@@ -735,25 +708,24 @@ class Reader
      *
      * Identifiers start with an alphabetical character and then follow with alpha-numeric characters.
      *
-     * @param string $prefix the prefix for an identifier (e.g. $, @, % etc., default: none)
-     * @param array $allowedChars additional chars to allow in the identifier (default: ['_'])
+     * @param string $prefix       the prefix for an identifier (e.g. $, @, % etc., default: none)
+     * @param array  $allowedChars additional chars to allow in the identifier (default: ['_'])
+     *
      * @return string|null the resulting identifier or null of none encountered.
      */
     public function readIdentifier($prefix = null, $allowedChars = null)
     {
-
         if ($prefix) {
             if ($this->peek(mb_strlen($prefix)) !== $prefix) {
-                return null;
+                return;
             }
 
             $this->consume();
         } elseif (!$this->peekAlphaIdentifier($allowedChars)) {
-            return null;
+            return;
         }
 
         return $this->readWhile(function () use ($allowedChars) {
-
             return $this->peekIdentifier($allowedChars);
         });
     }
@@ -768,14 +740,14 @@ class Reader
      * an escape expression.
      *
      * @param array $escapeSequences escape sequences to apply on the string.
-     * @param bool $raw wether to return the string raw, with quotes and keep escape sequences intact.
+     * @param bool  $raw             wether to return the string raw, with quotes and keep escape sequences intact.
+     *
      * @return string|null the resulting string or null if none encountered.
      */
     public function readString(array $escapeSequences = null, $raw = false)
     {
-
         if (!$this->peekQuote()) {
-            return null;
+            return;
         }
 
         $escapeSequences = $escapeSequences ?: [];
@@ -837,15 +809,15 @@ class Reader
      * Notice that this also validates brackets, if any bracket set doesn't match, this
      * will throw an exception (e.g. "callMe(['demacia')]" would throw an exception)
      *
-     * @param array $breaks the break characters to use (Breaks on string end by default).
+     * @param array $breaks   the break characters to use (Breaks on string end by default).
      * @param array $brackets the brackets to allow (Defaulting to whatever is defined in Reader->expressionBrackets)
+     *
      * @return string|null the resulting expression or null, if none encountered.
      */
     public function readExpression(array $breaks = null, array $brackets = null)
     {
-
         if (!$this->hasLength()) {
-            return null;
+            return;
         }
 
         $breaks = $breaks ?: [];
@@ -900,8 +872,8 @@ class Reader
 
         if (count($bracketStack) > 0) {
             $this->throwException(
-                "Unclosed brackets ".implode(', ', $bracketStack)." encountered "
-                ."at end of expression"
+                'Unclosed brackets '.implode(', ', $bracketStack).' encountered '
+                .'at end of expression'
             );
         }
 
@@ -912,11 +884,11 @@ class Reader
      * Returns a describing text for the last PREG error that happened.
      *
      * @param null $code
+     *
      * @return string
      */
     protected function getPregErrorText($code = null)
     {
-
         $code = $code ?: preg_last_error();
 
         if (!isset(self::$pregErrors[$code])) {
@@ -933,7 +905,6 @@ class Reader
      */
     protected function throwException($message)
     {
-
         throw new ReaderException(sprintf(
             "Failed to read: %s \nNear: %s \nLine: %s \nOffset: %s \nPosition: %s",
             $message,
