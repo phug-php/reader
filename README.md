@@ -51,8 +51,9 @@ First we want to read our identifier. We can do that easily with `readIdentifier
 It will stop on anything that is _not_ an identifier-character (The space after the identifier, in this case)
 ```php
 $identifier = $reader->readIdentifier();
-if ($identifier === null)
+if ($identifier === null) {
     throw new Exception("Failed to read: Identifier expected");
+}
     
 var_dump($identifier); //`someString`
 ```
@@ -67,8 +68,9 @@ If no spaces are encountered, it just returns `null`.
 
 Now we want to parse the assignment-operator (`=`) (or rather, validate that it's there)
 ```php
-if (!$reader->peekChar('='))
+if (!$reader->peekChar('=')) {
     throw new Exception("Failed to read: Assignment expected");
+}
     
 //Consume the result, since we're `peek`ing, not `read`ing.
 $reader->consume();
@@ -86,8 +88,9 @@ Notice that you have to check `null` explicitly, since we could also have an emp
 ```php
 $string = $reader->readString();
 
-if ($string === null)
+if ($string === null) {
     throw new Exception("Failed to read: Expected string");
+}
 
 var_dump($string); //`some string`
 ```
@@ -248,8 +251,9 @@ if ($reader->peekChar('(')) {
     
     
         //Scan the attribute name
-        if (!($name = $this->readIdentifier()))
+        if (!($name = $this->readIdentifier())) {
             throw new \Exception("Attributes need a name!");
+        }
         
         
         //Ignore spaces
@@ -257,8 +261,9 @@ if ($reader->peekChar('(')) {
         
         
         //Make sure there's a =-character
-        if (!$reader->peekChar('='))
+        if (!$reader->peekChar('=')) {
             throw new \Exception("Failed to read: Expected attribute value");
+        }
             
         $reader->consume();
         
@@ -278,8 +283,9 @@ if ($reader->peekChar('(')) {
         
         
         //If we don't encounter a , to go on, we break the loop
-        if (!$reader->peekChar(','))
+        if (!$reader->peekChar(',')) {
             break;
+        }
             
             
         //Else we consume the , and continue our attribute parsing
@@ -287,8 +293,9 @@ if ($reader->peekChar('(')) {
     }
     
     //Now make sure we actually closed our attribute block correctly.
-    if (!$reader->peekChar(')'))
+    if (!$reader->peekChar(')')) {
         throw new \Exception("Failed to read: Expected closing bracket");
+    }
 }
 
 
