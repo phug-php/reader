@@ -12,10 +12,15 @@ php:
     - hhvm
 
 install:
-    - php bin/check $TRAVIS_PHP_VERSION install
+    - travis_retry composer self-update
+    - travis_retry composer install
 
 script:
-    - php bin/check $TRAVIS_PHP_VERSION
+    - vendor/bin/phug-dev check --report
 
 notifications:
     slack: phug:nzXFnxhU14RWK2EQSDL0u08z
+
+addons:
+    code_climate:
+        repo_token: 394a4fc15473b47102c62fdda8fb12179fc89321742e2527b22f432d76e7355f
