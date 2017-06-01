@@ -129,6 +129,10 @@ class Reader
     public function __construct($input, $encoding = null)
     {
         $this->input = (string) $input;
+        // Remove UTF-8 BOM
+        if (substr($this->input, 0, 3) === pack('H*', 'EFBBBF')) {
+            $this->input = substr($this->input, 3);
+        }
         $this->encoding = $encoding ?: $this->defaultEncoding;
 
         $this->position = 0;

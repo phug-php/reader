@@ -874,4 +874,14 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
                 'title' => '(title ? title : \'Sorry, no title.\')',
             ], ], $element);
     }
+
+    /**
+     * @covers ::__construct
+     * @group utf8
+     */
+    public function testUtf8BomRemove()
+    {
+        $reader = new Reader(file_get_contents(__DIR__.'/../utf8bom.pug'));
+        self::assertTrue($reader->peekChar('p'));
+    }
 }
