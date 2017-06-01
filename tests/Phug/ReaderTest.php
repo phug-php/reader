@@ -877,7 +877,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::__construct
-     * @group utf8
      */
     public function testUtf8BomRemove()
     {
