@@ -743,20 +743,17 @@ class Reader
      * The quote itself is automatically passed as an escape sequence, so a '-enclosed string always knows \' as
      * an escape expression.
      *
-     * @param array $escapeSequences escape sequences to apply on the string.
      * @param bool  $raw             wether to return the string raw, with quotes and keep escape sequences intact.
      *
      * @return string|null the resulting string or null if none encountered.
      */
-    public function readString(array $escapeSequences = null, $raw = false)
+    public function readString($raw = false)
     {
         if (!$this->peekQuote()) {
             return;
         }
 
-        $escapeSequences = $escapeSequences ?: [];
         $quoteStyle = $this->consume();
-        $escapeSequences[$quoteStyle] = $quoteStyle;
 
         $char = null;
         $string = '';
@@ -768,17 +765,8 @@ class Reader
             //Handle escaping based on passed sequences
             if ($char === '\\') {
                 //Peek the next char
-                $next = $this->peek();
-                if (isset($escapeSequences[$next])) {
-                    $this->consume();
-
-                    if ($raw) {
-                        $string .= '\\';
-                    }
-
-                    $string .= $escapeSequences[$next];
-                    continue;
-                }
+                $string .= $char.$this->consume(1);
+                continue;
             }
 
             //End the string (Escaped quotes have already been handled)
@@ -833,7 +821,7 @@ class Reader
             //Append a string if any was found
             //Notice there can be brackets in strings, we dont want to
             //count those
-            $expression .= $this->readString(null, true);
+            $expression .= $this->readString(true);
 
             if (!$this->hasLength()) {
                 break;
