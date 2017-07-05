@@ -765,7 +765,7 @@ class Reader
             //Handle escaping based on passed sequences
             if ($char === '\\') {
                 //Peek the next char
-                $string .= $char.$this->consume(1);
+                $string .= $this->consume(1);
                 continue;
             }
 
