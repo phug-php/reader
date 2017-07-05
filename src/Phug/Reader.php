@@ -747,7 +747,7 @@ class Reader
      *
      * @return string|null the resulting string or null if none encountered.
      */
-    public function readString($raw = false)
+    public function readString(array $escapeSequences = null, $raw = false)
     {
         if (!$this->peekQuote()) {
             return;
@@ -764,8 +764,12 @@ class Reader
 
             //Handle escaping based on passed sequences
             if ($char === '\\') {
-                //Peek the next char
-                $string .= $this->consume(1);
+                $nextChar = $this->consume(1);
+                $string .= array_key_exists($nextChar, $escapeSequences ?: [])
+                    //Peek the escape sequence
+                    ? $escapeSequences[$nextChar]
+                    //Peek the next char
+                    : ($raw ? $char : '').$nextChar;
                 continue;
             }
 
@@ -821,7 +825,7 @@ class Reader
             //Append a string if any was found
             //Notice there can be brackets in strings, we dont want to
             //count those
-            $expression .= $this->readString(true);
+            $expression .= $this->readString(null, true);
 
             if (!$this->hasLength()) {
                 break;
