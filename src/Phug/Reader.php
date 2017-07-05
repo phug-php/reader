@@ -743,7 +743,7 @@ class Reader
      * The quote itself is automatically passed as an escape sequence, so a '-enclosed string always knows \' as
      * an escape expression.
      *
-     * @param bool  $raw             wether to return the string raw, with quotes and keep escape sequences intact.
+     * @param bool $raw whether to return the string raw, with quotes and keep escape sequences intact.
      *
      * @return string|null the resulting string or null if none encountered.
      */
