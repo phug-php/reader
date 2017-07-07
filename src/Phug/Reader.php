@@ -901,7 +901,7 @@ class Reader
      */
     protected function throwException($message)
     {
-        throw new ReaderException(sprintf(
+        $exception = new ReaderException(sprintf(
             "Failed to read: %s \nNear: %s \nLine: %s \nOffset: %s \nPosition: %s",
             $message,
             $this->peek(20),
@@ -909,5 +909,9 @@ class Reader
             $this->offset,
             $this->position
         ));
+        $exception->setPugLine($this->line);
+        $exception->setPugOffset($this->offset);
+
+        throw $exception;
     }
 }
