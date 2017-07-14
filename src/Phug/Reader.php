@@ -276,7 +276,7 @@ class Reader
         $this->nextConsumeLength = null;
 
         if (!$this->hasLength()) {
-            return null;
+            return;
         }
 
         $length = $length !== null ? $length : 1;
@@ -453,7 +453,7 @@ class Reader
         }
 
         if (!$this->hasLength()) {
-            return null;
+            return;
         }
 
         if ($peekLength === null) {
@@ -637,7 +637,7 @@ class Reader
     public function readIndentation()
     {
         if (!$this->peekIndentation()) {
-            return null;
+            return;
         }
 
         return $this->readWhile([$this, 'peekIndentation']);
@@ -661,7 +661,7 @@ class Reader
     public function readSpaces()
     {
         if (!$this->peekSpace()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_space');
@@ -675,7 +675,7 @@ class Reader
     public function readDigits()
     {
         if (!$this->peekDigit()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_digit');
@@ -689,7 +689,7 @@ class Reader
     public function readAlpha()
     {
         if (!$this->peekAlpha()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_alpha');
@@ -703,7 +703,7 @@ class Reader
     public function readAlphaNumeric()
     {
         if (!$this->peekAlphaNumeric()) {
-            return null;
+            return;
         }
 
         return $this->readWhile('ctype_alnum');
@@ -723,12 +723,12 @@ class Reader
     {
         if ($prefix) {
             if ($this->peek(mb_strlen($prefix)) !== $prefix) {
-                return null;
+                return;
             }
 
             $this->consume();
         } elseif (!$this->peekAlphaIdentifier($allowedChars)) {
-            return null;
+            return;
         }
 
         return $this->readWhile(function () use ($allowedChars) {
@@ -752,7 +752,7 @@ class Reader
     public function readString(array $escapeSequences = null, $raw = false)
     {
         if (!$this->peekQuote()) {
-            return null;
+            return;
         }
 
         $quoteStyle = $this->consume();
@@ -815,7 +815,7 @@ class Reader
     public function readExpression(array $breaks = null, array $brackets = null)
     {
         if (!$this->hasLength()) {
-            return null;
+            return;
         }
 
         $breaks = $breaks ?: [];
