@@ -2,6 +2,8 @@
 
 namespace Phug;
 
+use Phug\Util\SourceLocation;
+
 /**
  * A string reading utility that searches strings byte by byte.
  */
@@ -17,7 +19,7 @@ class Reader
         PREG_INTERNAL_ERROR        => 'An internal error occured',
         PREG_BACKTRACK_LIMIT_ERROR => 'The backtrack limit was exhausted (Increase pcre.backtrack_limit in php.ini)',
         PREG_RECURSION_LIMIT_ERROR => 'Recursion limit was exhausted (Increase pcre.recursion_limit in php.ini)',
-        PREG_BAD_UTF8_ERROR        => 'Bad UTF8 error!',
+        PREG_BAD_UTF8_ERROR        => 'Bad UTF8 error',
         PREG_BAD_UTF8_OFFSET_ERROR => 'Bad UTF8 offset error',
     ];
 
@@ -274,7 +276,7 @@ class Reader
         $this->nextConsumeLength = null;
 
         if (!$this->hasLength()) {
-            return;
+            return null;
         }
 
         $length = $length !== null ? $length : 1;
@@ -451,7 +453,7 @@ class Reader
         }
 
         if (!$this->hasLength()) {
-            return;
+            return null;
         }
 
         if ($peekLength === null) {
@@ -635,7 +637,7 @@ class Reader
     public function readIndentation()
     {
         if (!$this->peekIndentation()) {
-            return;
+            return null;
         }
 
         return $this->readWhile([$this, 'peekIndentation']);
@@ -659,7 +661,7 @@ class Reader
     public function readSpaces()
     {
         if (!$this->peekSpace()) {
-            return;
+            return null;
         }
 
         return $this->readWhile('ctype_space');
@@ -673,7 +675,7 @@ class Reader
     public function readDigits()
     {
         if (!$this->peekDigit()) {
-            return;
+            return null;
         }
 
         return $this->readWhile('ctype_digit');
@@ -687,7 +689,7 @@ class Reader
     public function readAlpha()
     {
         if (!$this->peekAlpha()) {
-            return;
+            return null;
         }
 
         return $this->readWhile('ctype_alpha');
@@ -701,7 +703,7 @@ class Reader
     public function readAlphaNumeric()
     {
         if (!$this->peekAlphaNumeric()) {
-            return;
+            return null;
         }
 
         return $this->readWhile('ctype_alnum');
@@ -721,12 +723,12 @@ class Reader
     {
         if ($prefix) {
             if ($this->peek(mb_strlen($prefix)) !== $prefix) {
-                return;
+                return null;
             }
 
             $this->consume();
         } elseif (!$this->peekAlphaIdentifier($allowedChars)) {
-            return;
+            return null;
         }
 
         return $this->readWhile(function () use ($allowedChars) {
@@ -750,7 +752,7 @@ class Reader
     public function readString(array $escapeSequences = null, $raw = false)
     {
         if (!$this->peekQuote()) {
-            return;
+            return null;
         }
 
         $quoteStyle = $this->consume();
@@ -813,7 +815,7 @@ class Reader
     public function readExpression(array $breaks = null, array $brackets = null)
     {
         if (!$this->hasLength()) {
-            return;
+            return null;
         }
 
         $breaks = $breaks ?: [];
@@ -898,19 +900,22 @@ class Reader
      * Throws an exception that contains useful debugging information.
      *
      * @param string $message the message to pass to the exception.
+     *
+     * @throws ReaderException
      */
     protected function throwException($message)
     {
-        $exception = new ReaderException(sprintf(
-            "Failed to read: %s \nNear: %s \nLine: %s \nOffset: %s \nPosition: %s",
-            $message,
-            $this->peek(20),
-            $this->line,
-            $this->offset,
-            $this->position
-        ));
-        $exception->setPugLine($this->line);
-        $exception->setPugOffset($this->offset);
+        $exception = new ReaderException(
+            new SourceLocation(null, $this->line, $this->offset),
+            sprintf(
+                "Failed to read: %s \nNear: %s \nLine: %s \nOffset: %s \nPosition: %s",
+                $message,
+                $this->peek(20),
+                $this->line,
+                $this->offset,
+                $this->position
+            )
+        );
 
         throw $exception;
     }

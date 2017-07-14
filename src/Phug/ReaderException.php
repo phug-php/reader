@@ -2,13 +2,11 @@
 
 namespace Phug;
 
-use Phug\Util\Partial\PugFileLocationTrait;
-use Phug\Util\PugFileLocationInterface;
+use Phug\Util\Exception\LocatedException;
 
 /**
  * An exception thrown by the pug reader.
  */
-class ReaderException extends \RuntimeException implements PugFileLocationInterface
+class ReaderException extends LocatedException
 {
-    use PugFileLocationTrait;
 }
