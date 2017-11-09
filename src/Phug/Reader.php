@@ -121,6 +121,8 @@ class Reader
      * @var int|null
      */
     private $nextConsumeLength;
+    
+    private $inputLength;
 
     /**
      * Creates a new reader instance.
@@ -136,6 +138,7 @@ class Reader
             $this->input = substr($this->input, 3);
         }
         $this->encoding = $encoding ?: $this->defaultEncoding;
+        $this->inputLength = mb_strlen($this->input, $this->encoding);
 
         $this->position = 0;
         $this->line = 1;
@@ -236,6 +239,7 @@ class Reader
     public function normalize()
     {
         $this->input = str_replace(str_split($this->badCharacters), '', $this->input);
+        $this->inputLength = mb_strlen($this->input, $this->encoding);
 
         return $this;
     }
@@ -247,7 +251,7 @@ class Reader
      */
     public function getLength()
     {
-        return mb_strlen($this->input, $this->encoding);
+        return $this->inputLength;
     }
 
     /**
@@ -257,7 +261,7 @@ class Reader
      */
     public function hasLength()
     {
-        return $this->getLength() > 0;
+        return '' !== $this->input;
     }
 
     /**
@@ -294,7 +298,7 @@ class Reader
         }
 
         $this->lastPeekResult = mb_substr($this->input, $start, $length, $this->encoding);
-        $this->nextConsumeLength = $start + mb_strlen($this->lastPeekResult, $this->encoding);
+        $this->nextConsumeLength = $start + $length;
 
         return $this->lastPeekResult;
     }
@@ -408,7 +412,8 @@ class Reader
         }
 
         $consumedPart = mb_substr($this->input, 0, $length, $this->encoding);
-        $this->input = mb_substr($this->input, $length, mb_strlen($this->input) - $length, $this->encoding);
+        $this->input = substr($this->input, strlen($consumedPart));
+        $this->inputLength -= $length;
         $this->position += $length;
         $this->offset += $length;
 
