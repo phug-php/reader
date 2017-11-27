@@ -2,13 +2,14 @@
 
 namespace Tale\Phug\Test;
 
+use PHPUnit\Framework\TestCase;
 use Phug\Reader;
 use Phug\ReaderException;
 
 /**
  * @coversDefaultClass Phug\Reader
  */
-class ReaderTest extends \PHPUnit_Framework_TestCase
+class ReaderTest extends TestCase
 {
     /**
      * @covers ::__construct
