@@ -121,7 +121,7 @@ class Reader
      * @var int|null
      */
     private $nextConsumeLength;
-    
+
     private $inputLength;
 
     /**
