@@ -261,7 +261,7 @@ class Reader
      */
     public function hasLength()
     {
-        return $this->input !== '';
+        return $this->inputLength !== 0;
     }
 
     /**
