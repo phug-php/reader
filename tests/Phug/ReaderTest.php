@@ -4,7 +4,6 @@ namespace Tale\Phug\Test;
 
 use PHPUnit\Framework\TestCase;
 use Phug\Reader;
-use Phug\ReaderException;
 
 /**
  * @coversDefaultClass Phug\Reader
