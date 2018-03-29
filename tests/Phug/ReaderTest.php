@@ -199,10 +199,10 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::peek
+     * @expectedException \InvalidArgumentException
      */
     public function testPeekThrowsExceptionOnInvalidArguments()
     {
-        self::setExpectedException(\InvalidArgumentException::class);
         (new Reader('a'))->peek(0);
     }
 
@@ -236,11 +236,11 @@ class ReaderTest extends TestCase
      * @covers ::match
      * @covers ::getPregErrorText
      * @covers ::throwException
-     * @covers Phug\ReaderException
+     * @covers \Phug\ReaderException
+     * @expectedException \Phug\ReaderException
      */
     public function testMatchFailsOnPregError()
     {
-        self::setExpectedException(ReaderException::class);
         (new Reader('foobar foobar foobar'))->match('(?:\D+|<\d+>)*[!?]');
     }
 
@@ -262,11 +262,11 @@ class ReaderTest extends TestCase
     /**
      * @covers ::getMatch
      * @covers ::throwException
-     * @covers Phug\ReaderException
+     * @covers \Phug\ReaderException
+     * @expectedException \Phug\ReaderException
      */
     public function testGetMatchCantOperateOnMissingMatchCall()
     {
-        self::setExpectedException(ReaderException::class);
         (new Reader('a'))->getMatch('test');
     }
 
@@ -284,11 +284,11 @@ class ReaderTest extends TestCase
     /**
      * @covers ::getMatchData
      * @covers ::throwException
-     * @covers Phug\ReaderException
+     * @covers \Phug\ReaderException
+     * @expectedException \Phug\ReaderException
      */
     public function testGetMatchDataCantOperateOnMissingMatchCall()
     {
-        self::setExpectedException(ReaderException::class);
         (new Reader('a'))->getMatchData();
     }
 
@@ -323,11 +323,11 @@ class ReaderTest extends TestCase
     /**
      * @covers ::consume
      * @covers ::throwException
-     * @covers Phug\ReaderException
+     * @covers \Phug\ReaderException
+     * @expectedException \Phug\ReaderException
      */
     public function testConsumeThrowsExceptionOnInvalidConsumeLength()
     {
-        self::setExpectedException(ReaderException::class);
         (new Reader('a'))->consume();
     }
 
@@ -349,10 +349,10 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::readWhile
+     * @expectedException \InvalidArgumentException
      */
     public function testReadWhileExpectsValidCallback()
     {
-        self::setExpectedException(\InvalidArgumentException::class);
         (new Reader('a'))->readWhile('test');
     }
 
@@ -646,13 +646,13 @@ class ReaderTest extends TestCase
     /**
      * @covers ::readString
      * @covers ::throwException
-     * @covers Phug\ReaderException
+     * @covers \Phug\ReaderException
+     * @expectedException \Phug\ReaderException
      *
      * @dataProvider provideNotCorrectlyClosedStrings
      */
     public function testReadStringFailsOnNotCorrectlyClosedStrings($string)
     {
-        self::setExpectedException(ReaderException::class);
         (new Reader($string))->readString();
     }
 
@@ -679,13 +679,13 @@ class ReaderTest extends TestCase
     /**
      * @covers ::readExpression
      * @covers ::throwException
-     * @covers Phug\ReaderException
+     * @covers \Phug\ReaderException
+     * @expectedException \Phug\ReaderException
      *
      * @dataProvider provideNotCorrectlyClosedBrackets
      */
     public function testReadExpressionFailsOnNotCorrectlyClosedBrackets($string)
     {
-        self::setExpectedException(ReaderException::class);
         (new Reader($string))->readExpression([',']);
     }
 
