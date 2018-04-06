@@ -2,7 +2,7 @@
     "name": "phug/reader",
     "type": "library",
     "keywords": ["phug", "reader", "template", "dialect", "html", "views", "render", "presentation", "jade", "pug", "html", "php", "phtml"],
-    "description": "",
+    "description": "Pug (ex-Jade) string reader for PHP, HTML template engine structured by indentation",
     "license": "MIT",
     "homepage": "http://phug-lang.com",
     "authors": [
