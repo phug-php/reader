@@ -2,6 +2,7 @@
 
 namespace Phug;
 
+use Phug\Util\Partial\PathTrait;
 use Phug\Util\SourceLocation;
 
 /**
@@ -9,6 +10,8 @@ use Phug\Util\SourceLocation;
  */
 class Reader
 {
+    use PathTrait;
+
     /**
      * An array of PREG errors with a good error message.
      *
@@ -910,12 +913,14 @@ class Reader
      */
     protected function throwException($message)
     {
+        $path = $this->getPath();
         $exception = new ReaderException(
             new SourceLocation(null, $this->line, $this->offset),
             sprintf(
-                "Failed to read: %s \nNear: %s \nLine: %s \nOffset: %s \nPosition: %s",
+                "Failed to read: %s \nNear: %s%s\nLine: %s \nOffset: %s \nPosition: %s",
                 $message,
                 $this->peek(20),
+                $path ? "\nFile: $path" : '',
                 $this->line,
                 $this->offset,
                 $this->position

@@ -244,6 +244,19 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @covers ::throwException
+     * @covers \Phug\ReaderException
+     * @expectedException \Phug\ReaderException
+     * @expectedExceptionMessage File: path.pug
+     */
+    public function testPathInErrors()
+    {
+        $reader = new Reader('foobar foobar foobar');
+        $reader->setPath('path.pug');
+        $reader->match('(?:\D+|<\d+>)*[!?]');
+    }
+
+    /**
      * @covers ::match
      * @covers ::getMatch
      */
