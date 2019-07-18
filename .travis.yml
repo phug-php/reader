@@ -12,9 +12,6 @@ matrix:
     - php: 7.1
     - php: 7.2
     - php: 7.3
-    - php: hhvm-3.18
-      dist: trusty
-      sudo: required
 
 install:
   - travis_retry composer self-update
