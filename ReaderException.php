@@ -9,8 +9,4 @@ use Phug\Util\Exception\LocatedException;
  */
 class ReaderException extends LocatedException
 {
-    public static function message($message, array $details = [])
-    {
-        return static::getFailureMessage('read', $message, $details);
-    }
 }
